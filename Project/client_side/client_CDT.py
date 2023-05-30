@@ -44,13 +44,12 @@ class Client:
         This function is activated by uploading a non-empty exe file in the
         malicious file detector page.
         This function sends the file to the server and closes the file in the end."""
-        file = open(file_path, "rb")
-        file_content = file.read()
-        self.client_conn.send(file_path.encode())  # Send file path
-        file_size = os.path.getsize(file_path)
-        self.client_conn.send(str(file_size).encode())  # Send file size
-        self.client_conn.send(file_content)  #Send file content
-        file.close()  # Close the file
+        with open(file_path, "rb") as f:  # Send the executable file to the server
+            data = f.read(1024)
+            while data:
+                self.client_conn.send(data)
+                data = f.read(1024)
+        self.client_conn.send(b"done")  # Sign for server to stop the file transfer
 
     def choice1(self, level, my_port):
         """Function receives level of protection and client's port as parameters.
